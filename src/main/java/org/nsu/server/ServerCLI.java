@@ -13,7 +13,7 @@ public class ServerCLI {
     private static final Options options = new Options();
 
     static {
-        options.addOption("p", "port", true, "Порт сервера");
+        options.addOption("p", "port", true, "server port");
         options.addOption("h", "help", false, "...");
     }
 

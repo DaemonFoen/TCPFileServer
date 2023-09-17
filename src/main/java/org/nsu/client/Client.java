@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Path;
 import lombok.extern.log4j.Log4j2;
-import org.nsu.server.ClientCLI;
 
 @Log4j2
 public class Client {
@@ -43,7 +42,7 @@ public class Client {
                 dos.writeLong(file.length());
 
                 FileInputStream fis = new FileInputStream(file);
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[10000];
                 int bytesRead;
 
                 while ((bytesRead = fis.read(buffer)) != -1) {
@@ -51,12 +50,12 @@ public class Client {
                 }
                 fis.close();
                 socket.shutdownOutput();
-                log.info("Передача с клиента закончена");
+                log.info("Connection end");
                 boolean success = dis.readBoolean();
                 if (success) {
-                    System.out.println("Файл передан успешно");
+                    System.out.println("Success");
                 } else {
-                    System.out.println("Ошибка в передаче файла");
+                    System.out.println("Fail");
                 }
             } catch (IOException e) {
                 log.error(e.getMessage());

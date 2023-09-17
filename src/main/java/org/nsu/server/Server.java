@@ -26,7 +26,7 @@ public class Server {
     public void start() {
         Thread thread = new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
-                System.out.println("Адрес сервера: ip - " + InetAddress.getLocalHost() + " port - %d".formatted(port));
+                System.out.printf("server port - %d%n", port);
                 Socket clientSocket;
                 while (true){
                     try {
@@ -34,7 +34,7 @@ public class Server {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    System.out.println("Пользователь подключен : " + clientSocket.getInetAddress());
+                    System.out.println("User connected : " + clientSocket.getInetAddress());
                     ConnectionHandler connectionHandler = new ConnectionHandler(clientSocket,clients.size()+1);
                     clients.add(connectionHandler);
                     Thread clientThread = new Thread(connectionHandler);
@@ -67,8 +67,7 @@ public class Server {
                 File uploadDir = new File(UPLOAD_DIR);
                 if (!uploadDir.exists()) {
                     if (!uploadDir.mkdirs()) {
-                        log.error("Не удаётся создать папку");
-                        throw new RuntimeException("Не удаётся создать папку");
+                        throw new RuntimeException("Can't create upload folder");
                     }
                 }
                 File file = new File(uploadDir, fileName);
@@ -89,7 +88,7 @@ public class Server {
                         double transferSpeed = (totalKBytesRead / (1024.0 * 1024.0)) / (elapsedTime / 1000.0);
                         averageTransferSpeed += transferSpeed;
                         countTS++;
-                        System.out.printf("Пользователь %d Скорость: %.2f MB/s, Средняя скорость: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
+                        System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
                         startTime = System.currentTimeMillis();
                         totalKBytesRead = 0;
                     }
@@ -97,10 +96,10 @@ public class Server {
                 double transferSpeed = (totalKBytesRead / (1024.0 * 1024.0)) / (elapsedTime / 1000.0);
                 averageTransferSpeed += transferSpeed;
                 countTS++;
-                System.out.printf("Пользователь %d Скорость: %.2f MB/s, Средняя скорость: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
+                System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
                 fos.close();
                 dos.writeBoolean(file.length() == fileSize);
-                System.out.printf("Пользователь %d закончил передачу%n", number);
+                System.out.printf("User %d close connection %n", number);
             } catch (IOException e) {
                 log.error(e.getMessage());
             }

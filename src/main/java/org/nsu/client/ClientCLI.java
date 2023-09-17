@@ -1,4 +1,4 @@
-package org.nsu.server;
+package org.nsu.client;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -10,16 +10,15 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.nsu.client.Args;
 
 public class ClientCLI {
 
     private static final Options options = new Options();
 
     static {
-        options.addOption("i", "ip", true, "IP адресс сервера");
-        options.addOption("p", "port", true, "порт сервера");
-        options.addOption("f", "file", true, "Абсолютный путь к файлу");
+        options.addOption("i", "ip", true, "server IP");
+        options.addOption("p", "port", true, "server port");
+        options.addOption("f", "file", true, "absolute path");
         options.addOption("h", "help", false, "...");
     }
 
@@ -40,15 +39,15 @@ public class ClientCLI {
         if (cmd.hasOption("f")) {
             path = Path.of(cmd.getOptionValue("f"));
         } else {
-            throw new RuntimeException("Нет обязательной опции p");
+            throw new RuntimeException("No required option - f");
         }
         if (cmd.hasOption("p")) {
             port = Integer.parseInt(cmd.getOptionValue("p"));
             if (port <= 0) {
-                throw new RuntimeException("Неверный номер порта");
+                throw new RuntimeException("Wrong port");
             }
         } else {
-            throw new RuntimeException("Нет обязательной опции p");
+            throw new RuntimeException("No required option - p");
         }
         if (cmd.hasOption("i")) {
             try {
@@ -57,7 +56,7 @@ public class ClientCLI {
                 throw new RuntimeException(e);
             }
         } else {
-            throw new RuntimeException("Нет обязательной опции i");
+            throw new RuntimeException("No required option - i");
         }
         return new Args(path, ip, port);
     }

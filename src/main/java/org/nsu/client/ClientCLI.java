@@ -1,25 +1,18 @@
 package org.nsu.client;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.nsu.CLI;
 
-public class ClientCLI {
-
-    private static final Options options = new Options();
+public class ClientCLI extends CLI {
 
     static {
         options.addOption("i", "ip", true, "server IP");
-        options.addOption("p", "port", true, "server port");
         options.addOption("f", "file", true, "absolute path");
-        options.addOption("h", "help", false, "...");
     }
 
     public static Args parse(String[] args) {
@@ -32,6 +25,7 @@ public class ClientCLI {
         Path path;
         InetAddress ip;
         int port;
+        double speed;
         if (cmd.hasOption("help")) {
             System.out.println(usage());
             System.exit(0);
@@ -58,14 +52,15 @@ public class ClientCLI {
         } else {
             throw new RuntimeException("No required option - i");
         }
-        return new Args(path, ip, port);
+        if (cmd.hasOption("s")){
+            speed = Long.parseLong(cmd.getOptionValue("s"));
+            if (speed <= 0){
+                throw new RuntimeException("Speed must be greater than zero");
+            }
+        }else{
+            throw new RuntimeException("No required option - s");
+        }
+        return new Args(path, ip, port,speed);
     }
 
-    public static String usage() {
-        HelpFormatter formatter = new HelpFormatter();
-        StringWriter stringWriter = new StringWriter();
-        formatter.printHelp(new PrintWriter(stringWriter), 250, "Client", null,
-                options, formatter.getLeftPadding(), formatter.getDescPadding(), null, true);
-        return stringWriter.toString();
-    }
 }

@@ -5,11 +5,12 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import org.nsu.DataUnits;
 
 
 @Log4j2
 public class Server {
-    private int;
+    private final double speed;
     private final int port;
     private static final String UPLOAD_DIR = "uploads";
     private final List<ConnectionHandler> clients;
@@ -19,9 +20,10 @@ public class Server {
         server.start();
     }
 
-    public Server(int port) {
+    public Server(Args args) {
         clients = new ArrayList<>();
-        this.port = port;
+        this.port = args.port();
+        this.speed = args.speed();
     }
 
     public void start() {
@@ -81,21 +83,26 @@ public class Server {
                 int countTS = 0;
                 int bytesRead;
                 long elapsedTime = 1;
+                double transferSpeed;
                 while ((bytesRead = dis.read(buffer)) != -1) {
                     fos.write(buffer, 0, bytesRead);
                     totalKBytesRead += bytesRead;
                     elapsedTime = System.currentTimeMillis() - startTime;
+                    transferSpeed = DataUnits.convertToMbSec(totalKBytesRead,elapsedTime);
+
+                    if (DataUnits.convertToMbSec(totalKBytesRead,elapsedTime) > speed){
+                        Thread.sleep(1);
+                    }
+
                     if (elapsedTime >= 3000) {
-                        double transferSpeed = (DataUnits.MB.convert(totalKBytesRead)) / (DataUnits.SEC.convert(elapsedTime));
                         averageTransferSpeed += transferSpeed;
                         countTS++;
                         System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
                         startTime = System.currentTimeMillis();
                         totalKBytesRead = 0;
                     }
-                    Thread.sleep(bytesRead/);
                 }
-                double transferSpeed = (DataUnits.MB.convert(totalKBytesRead)) / (DataUnits.SEC.convert(elapsedTime));
+                transferSpeed = DataUnits.convertToMbSec(totalKBytesRead,elapsedTime);
                 averageTransferSpeed += transferSpeed;
                 countTS++;
                 System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
@@ -105,8 +112,10 @@ public class Server {
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
+            catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             finally {
-
                 try {
                     clientSocket.close();
                 } catch (IOException e) {
@@ -117,15 +126,4 @@ public class Server {
         }
     }
 
-    enum DataUnits{
-        MB(1024*1024),
-        SEC(1000);
-        private final double value;
-        DataUnits(long value){
-            this.value = value;
-        }
-        public double convert(long value) {
-            return value/this.value;
-        }
-    }
 }

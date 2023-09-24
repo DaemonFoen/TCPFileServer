@@ -2,12 +2,14 @@ package org.nsu.client;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.core.config.plugins.convert.TypeConverters;
 
 @Log4j2
 public class Client {
-
+    private final double TB = 1024D*1024*1024*1024;
     private final InetAddress serverIP;
     private final int serverPort;
     private final Path filePath;
@@ -25,6 +27,15 @@ public class Client {
 
 
     public void start(){
+        if (filePath.getFileName().toString().getBytes(StandardCharsets.UTF_8).length > 4096){
+            System.out.println("The length of the file name is more than 4068 bytes");
+            System.exit(1);
+        }
+        if ((filePath.toFile().length() / (TB)) > 1){
+            System.out.println("The file size is more than а TB");
+            System.exit(1);
+        }
+
         Thread thread = new Thread(() -> {
             try (
                     Socket socket = new Socket(serverIP, serverPort);

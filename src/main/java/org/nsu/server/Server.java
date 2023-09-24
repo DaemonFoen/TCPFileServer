@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 
+
 @Log4j2
 public class Server {
-
+    private int;
     private final int port;
     private static final String UPLOAD_DIR = "uploads";
     private final List<ConnectionHandler> clients;
@@ -85,15 +86,16 @@ public class Server {
                     totalKBytesRead += bytesRead;
                     elapsedTime = System.currentTimeMillis() - startTime;
                     if (elapsedTime >= 3000) {
-                        double transferSpeed = (totalKBytesRead / (1024.0 * 1024.0)) / (elapsedTime / 1000.0);
+                        double transferSpeed = (DataUnits.MB.convert(totalKBytesRead)) / (DataUnits.SEC.convert(elapsedTime));
                         averageTransferSpeed += transferSpeed;
                         countTS++;
                         System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
                         startTime = System.currentTimeMillis();
                         totalKBytesRead = 0;
                     }
+                    Thread.sleep(bytesRead/);
                 }
-                double transferSpeed = (totalKBytesRead / (1024.0 * 1024.0)) / (elapsedTime / 1000.0);
+                double transferSpeed = (DataUnits.MB.convert(totalKBytesRead)) / (DataUnits.SEC.convert(elapsedTime));
                 averageTransferSpeed += transferSpeed;
                 countTS++;
                 System.out.printf("User %d Speed: %.2f MB/s, Average speed: %.2f MB/s%n", number,transferSpeed,averageTransferSpeed/countTS);
@@ -112,6 +114,18 @@ public class Server {
                 }
                 clients.remove(this);
             }
+        }
+    }
+
+    enum DataUnits{
+        MB(1024*1024),
+        SEC(1000);
+        private final double value;
+        DataUnits(long value){
+            this.value = value;
+        }
+        public double convert(long value) {
+            return value/this.value;
         }
     }
 }
